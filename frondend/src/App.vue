@@ -1,58 +1,67 @@
 <script setup>
 import { useRoute } from 'vue-router';
-
-// 获取当前路由信息
 const route = useRoute();
 </script>
 
 <template>
-  <div v-if="route.name !== 'Login'" class="common-layout">
-    <el-container style="height:100%">
-      <el-header><h1 style="margin-top: 0.1%;">Just-Test</h1></el-header>
-      <el-main><router-view/></el-main>
-      <el-footer><h2 style="margin-top: 0.1%;">评论区</h2></el-footer>
+  <el-container class="full-container">
+    <el-header>Just-Test</el-header>
+    <el-container>
+      <el-aside width="15%"><el-menu
+        default-active="1"
+        class="el-menu-vertical-demo"
+        @open="handleOpen"
+        @close="handleClose"
+      >
+        <el-menu-item index="1">
+          <el-icon><icon-menu /></el-icon>
+          <span>资料</span>
+        </el-menu-item>
+        <el-menu-item index="2">
+          <el-icon><document /></el-icon>
+          <span>脚本监控</span>
+        </el-menu-item>
+        <el-menu-item index="3">
+          <el-icon><setting /></el-icon>
+          <span>文件</span>
+        </el-menu-item>
+      </el-menu></el-aside>
+      <el-main>Main</el-main>
     </el-container>
-  </div>
-  <router-view v-else/>
+  </el-container>
 </template>
 
 <style>
-.common-layout{
+/* 全局重置，建议放在单独的 CSS 文件中 */
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+/* 让整个容器充满视口高度 */
+.full-container {
   height: 100vh;
 }
 
-.el-header, .el-footer {
-    background-color: #B3C0D1;
-    color: #333;
-    text-align: center;
-    line-height: 60px;
-  }
+.el-header {
+  background-color: #B3C0D1;
+  color: #333;
+  text-align: center;
+  line-height: 60px;
+}
 
-  .el-aside {
-    background-color: #D3DCE6;
-    color: #333;
-    text-align: center;
-    line-height: 200px;
-  }
+.el-aside {
+  background-color: #D3DCE6;
+  color: #333;
+  text-align: center;
+  line-height: 200px;
+}
 
-  .el-main {
-    background-color: #E9EEF3;
-    color: #333;
-    text-align: center;
-    line-height: 160px;
-  }
-
-  body > .el-container {
-    margin-bottom: 40px;
-  }
-
-  .el-container:nth-child(5) .el-aside,
-  .el-container:nth-child(6) .el-aside {
-    line-height: 260px;
-  }
-
-  .el-container:nth-child(7) .el-aside {
-    line-height: 320px;
-  }
-
+.el-main {
+  background-color: #E9EEF3;
+  color: #333;
+  text-align: center;
+  line-height: 160px;
+}
 </style>
