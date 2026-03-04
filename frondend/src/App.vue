@@ -1,6 +1,11 @@
 <script setup>
 import { useRoute } from 'vue-router';
+import { onMounted } from 'vue';
+
 const route = useRoute();
+onMounted(()=>{
+    document.title = "Just-Test"
+})
 </script>
 
 <template>
@@ -15,7 +20,7 @@ const route = useRoute();
       >
         <el-menu-item index="1">
           <el-icon><icon-menu /></el-icon>
-          <span>资料</span>
+          <span>文件</span>
         </el-menu-item>
         <el-menu-item index="2">
           <el-icon><document /></el-icon>
@@ -23,10 +28,10 @@ const route = useRoute();
         </el-menu-item>
         <el-menu-item index="3">
           <el-icon><setting /></el-icon>
-          <span>文件</span>
+          <span>学习资料</span>
         </el-menu-item>
       </el-menu></el-aside>
-      <el-main>Main</el-main>
+      <el-main><router-view></router-view></el-main>
     </el-container>
   </el-container>
 </template>
