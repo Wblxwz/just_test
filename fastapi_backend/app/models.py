@@ -5,5 +5,5 @@ class File(SQLModel,table=True):
     name: str = Field(default="")
     leaf: bool = Field(default=True)
     parent_id: int = Field(default=0)
-    file_size: str = Field(default="")
+    file_size: str = Field(default="0kb")
     url: str = Field(default="")

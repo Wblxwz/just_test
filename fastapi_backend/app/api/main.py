@@ -1,9 +1,9 @@
-from api.routes import file
+from app.api.routes import file
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from models import *
-from db import create_db_and_tables
+from app.models import *
+from app.db import create_db_and_tables
 
 origins = [
     "https://",
