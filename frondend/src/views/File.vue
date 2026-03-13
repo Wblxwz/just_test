@@ -25,13 +25,13 @@
             <el-button type="primary" link @click.stop="append(node,data)" v-if="!data.leaf">
               新建
             </el-button>
-            <el-button type="success" link @click.stop="download(data)">
+            <el-button type="success" link @click.stop="download(data)" v-if="data.leaf">
               下载
             </el-button>
             <el-button
               type="danger"
               link
-              @click.stop="remove(node, data)"
+              @click.stop="remove(node,data)"
             >
               删除
             </el-button>
@@ -52,29 +52,15 @@
       </el-form-item>
       <el-form-item>
         <el-upload
-        ref="folderUpload"
-        v-if="fileForm.type === 'folderRadio'"
-        v-model:file-list="folderList"
-        class="upload-demo"
-        action="https://run.mocky.io/v3/9d059bf9-4660-45f2-925d-ce80ad6c4d15"
-        :auto-upload=false
-        multiple
-        directory
-        :before-upload="beforeUpload"
-      >
-        <el-button type="primary">点击选择文件夹</el-button>
-        </el-upload>
-        <el-upload
           ref="fileUpload"
           v-if="fileForm.type === 'fileRadio'"
           v-model:file-list="fileList"
           class="upload-demo"
-          action="https://run.mocky.io/v3/9d059bf9-4660-45f2-925d-ce80ad6c4d15"
           :auto-upload=false
           multiple
           :limit="1"
           :on-exceed="handleExceed"
-          :before-upload="beforeUpload"
+          :on-change="fileChange"
         >
           <el-button type="primary">点击选择文件</el-button>
         </el-upload>
@@ -86,15 +72,36 @@
   </el-dialog>
 </template>
 
-<script setup>
+<script lang="ts" setup>
 import axios from 'axios'
 import { ElMessage } from 'element-plus'
 import { ref, watch } from 'vue'
+import type {
+  LoadFunction,
+  FilterNodeMethodFunction,
+  RenderContentContext,
+  RenderContentFunction,
+  TreeInstance,
+  UploadProps, UploadUserFile,UploadFiles,UploadFile
+} from 'element-plus'
 
-const fileUpload = ref(null)
-const folderUpload = ref(null)
-const fileList = ref([])
-const folderList = ref([])
+interface Tree {
+  [key: string]: any
+}
+interface FileNode{
+  id?:number,
+  name:string,
+  leaf:boolean,
+  parent_id:number,
+  file_size:string,
+  url:string
+}
+type Node = RenderContentContext['node']
+type Data = RenderContentContext['data']
+
+const fileSize = ref()
+const fileList = ref<UploadUserFile[]>([])
+const folderList = ref<UploadUserFile[]>([])
 const fileForm = ref({
   name: '',
   type: 'folderRadio',
@@ -103,11 +110,11 @@ const props = {
   label: 'name',
   isLeaf: 'leaf',
 }
-const loadNode = (node, resolve)=>
+const loadNode:LoadFunction = (node, resolve)=>
 {
   if (node.level === 0) {
     axios.get("http://127.0.0.1:8000/file").then((response)=>{
-    const files = response.data
+    const files:FileNode[] = response.data
     const folderNodes = files.filter(item => item.parent_id === 0)
     resolve(folderNodes)
     })
@@ -122,7 +129,7 @@ const loadNode = (node, resolve)=>
   }, 500)
   }
 }
-const remove = (node, data)=>
+const remove = (node: Node, data: Data)=>
 {
   axios.delete("http://127.0.0.1:8000/file/folder/" + node.data.id).then((response)=>{
     if (response.data.ok === true)
@@ -142,9 +149,9 @@ const remove = (node, data)=>
   })
 }
 const addDialog = ref(false)
-const myNode = ref(null)
-const myData = ref(null)
-const myFileSize = ref(null)
+const myNode = ref()
+const myData = ref()
+const myFileSize = ref()
 const append = (node = null,data = null)=>{
   addDialog.value = true
   fileForm.value.name = ""
@@ -154,56 +161,33 @@ const append = (node = null,data = null)=>{
   fileList.value = []
   folderList.value = []
 }
-const addFileButton = ()=>{
+const addFileButton = async ()=>{
   let leaf = false
+  let fileName = ""
+  leaf = true
+  const formData = new FormData()
   if (fileForm.value.type === "fileRadio")
   {
-    leaf = true
-    fileUpload.value.submit()
-    // console.log(fileList.value[0].size)
+    formData.append("file",fileList.value[0]?.raw!)
+    const response = await axios.post("http://127.0.0.1:8000/file/upload",formData)
+    fileName = response.data.file
   }
-  else{
-    folderUpload.value.submit()
+  else
+  {
+    leaf = false
   }
   const json = {
     "name":fileForm.value.name,
     "leaf":leaf,
     "parent_id":myNode.value ? myNode.value.data.id : 0,
-    "file_size": Math.ceil(myFileSize.value / 1024) + "kb",
-    "url":"123"
+    "file_size": Math.ceil(fileSize.value / 1024) + "kb",
+    "url":fileName ? fileName : "folder"
     }
     axios.post("http://127.0.0.1:8000/file",json).then((response)=>{
     addDialog.value = false
     if (response.data.ok === true)
     {
       ElMessage.success("新建成功")
-      if (fileForm.value.type === "folderRadio" && folderList.value.length != 0)
-      {
-        const json_list = ref([])
-        console.log(folderList.value.length)
-        for(let i=0;i < folderList.value.length;i++)
-        {
-          const json = {
-          "name":folderList.value[i].raw.name,
-          //文件夹上传时会被扁平化处理
-          "leaf":true,
-          "parent_id":response.data.file.id,
-          "file_size": Math.ceil(folderList.value[i].raw.size / 1024) + "kb",
-          "url":"123"
-          }
-          json_list.value.push(json)
-        }
-        axios.post("http://127.0.0.1:8000/file/folder",json_list.value).then((response)=>{
-          if (response.data.ok === true)
-          {
-            ElMessage.success("上传文件夹成功")
-          }
-          else
-          {
-            ElMessage.error("上传文件夹失败")
-          }
-        })
-      }
     }
     else
     {
@@ -222,23 +206,31 @@ const addFileButton = ()=>{
     })
 }
 const filterText = ref('')
-const filterNode = (value,data)=>{
+const filterNode:FilterNodeMethodFunction  = (value:string,data:Tree)=>{
   if (!value) return true
   return data.name.includes(value)
 }
-const treeRef = ref(null)
+const treeRef = ref()
 watch(filterText, (val) => {
   // 核心：先校验 treeRef.value 存在，再执行 filter
   if (treeRef.value && typeof treeRef.value.filter === 'function') {
     treeRef.value.filter(val)
   }
 })
-const beforeUpload = (rawFile)=>{
-  myFileSize.value += rawFile.size
-  return true
-}
-const handleExceed = ()=>{
+const handleExceed:() => void = ()=>{
   ElMessage("最多可上传一个文件")
+}
+const download = (data:FileNode)=>{
+  const downloadLink = "http://127.0.0.1:8000/file/download/" + data.id
+  const link = document.createElement("a")
+  link.href = downloadLink
+  link.download = data.name
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
+const fileChange = (uploadFile: UploadFile, uploadFiles: UploadFiles)=>{
+  fileSize.value = uploadFile.size
 }
 </script>
 <style>

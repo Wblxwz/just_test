@@ -1,4 +1,4 @@
-<script setup>
+<script lang="ts" setup>
 import { useRoute } from 'vue-router';
 import { onMounted } from 'vue';
 
@@ -6,6 +6,20 @@ const route = useRoute();
 onMounted(()=>{
     document.title = "Just-Test"
 })
+
+import {
+  Document,
+  Menu as IconMenu,
+  Location,
+  Setting,
+} from '@element-plus/icons-vue'
+
+const handleOpen = (key: string, keyPath: string[]) => {
+  console.log(key, keyPath)
+}
+const handleClose = (key: string, keyPath: string[]) => {
+  console.log(key, keyPath)
+}
 </script>
 
 <template>

@@ -1,4 +1,6 @@
-from fastapi import APIRouter
+from fastapi import APIRouter,UploadFile,File
+import os
+from app.utils.util import *
 from app.crud import *
 from app.db import SessionDep
 
@@ -51,3 +53,32 @@ def get_file_under_folder(session:SessionDep,id:int):
 def delete_file_under_folder(session:SessionDep,id:int):
     message = delete_file_folder(session,id)
     return message
+
+@router.post("/upload")
+async def upload_file(file:UploadFile):
+    file_name = await save_file(file)
+    return {
+        "file":file_name
+    }
+
+@router.post("/uploadFiles")
+async def upload_files(files:List[UploadFile]):
+    #不允许文件夹嵌套，在前端应做限制，因为是扁平化处理文件，不创建多个文件夹节点
+    timestamp = int(time.time() * 1000)
+    files_name = []
+    file_name = files[0].filename
+    file_path = Path(file_name)
+    folder_name = f"{timestamp}_{file_path.parent}"
+    os.makedirs(folder_name,exist_ok=True)
+    for file in files:
+        file.filename = folder_name + file.filename.split("\\")[1]
+        file_name = await save_files(file)
+        files_name.append(file_name)
+    return {
+        "files":files_name
+    }
+
+@router.get("/download/{id}")
+async def download_file(session:SessionDep,id:int):
+    file = select_file_by_id(session,id)
+    return await get_file(file)
