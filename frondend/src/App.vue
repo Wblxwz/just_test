@@ -37,7 +37,7 @@ const handleClose = (key: string, keyPath: string[]) => {
           <el-icon><icon-menu /></el-icon>
           <span>文件</span>
         </el-menu-item>
-        <el-menu-item index="/script">
+        <el-menu-item index="/process">
           <el-icon><document /></el-icon>
           <span>脚本监控</span>
         </el-menu-item>

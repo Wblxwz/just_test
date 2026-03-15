@@ -1,4 +1,4 @@
-from app.api.routes import file
+from app.api.routes import file,script
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -21,6 +21,7 @@ app.add_middleware(
 )
 
 app.include_router(file.router)
+app.include_router(script.router)
 
 @app.on_event("startup")
 def on_startup():

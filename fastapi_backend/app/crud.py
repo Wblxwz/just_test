@@ -42,3 +42,21 @@ def delete_file_folder(session:SessionDep,id:int):
     session.delete(file)
     session.commit()
     return {"ok":True,"message":"delete success"}
+
+#process
+#====================================================
+def get_process(session:SessionDep,offset:int = 0,limit:Annotated[int, Query(le=10)] = 10):
+    processes = session.exec(select(Process).offset(offset).limit(limit)).all()
+    return processes
+
+def get_process_by_id(session:SessionDep,id:int):
+    return session.get(Process,id)
+
+def insert_process(session:SessionDep,process:Process):
+    session.add(process)
+    session.commit()
+    session.refresh(process)
+    return {
+        "ok":True,
+        "insert_process":process
+    }
