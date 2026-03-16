@@ -23,9 +23,27 @@ class Process(SQLModel,table=True):
     name: str = Field(default="")
     describe: str | None = Field(default="")
     type: str | None = Field(default="")
+    host: str = Field(default="")
+    command: str | None = Field(default="")
     report_url: str = Field(default="")
     start_time: datetime = Field(default=datetime.now(timezone.utc))
     end_time: datetime | None = Field()
     status: str = Field(default="运行中")
     duration:datetime | None = Field()
     remain_time:datetime | None = Field()
+    elapsed_time:datetime | None = Field()
+
+class ProcessUpdate(SQLModel,table=False):
+    id:int | None = None
+    name: str = None
+    describe: str | None = None
+    type: str | None = None
+    host: str | None = None
+    command: str | None = None
+    report_url: str | None = None
+    start_time: datetime | None = None
+    end_time: datetime | None = None
+    status: str | None = None
+    duration:datetime | None = None
+    remain_time:datetime | None = None
+    elapsed_time:datetime | None = None

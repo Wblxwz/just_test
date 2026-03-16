@@ -60,3 +60,18 @@ def insert_process(session:SessionDep,process:Process):
         "ok":True,
         "insert_process":process
     }
+
+def update_process(session:SessionDep,id:int,process_update:ProcessUpdate):
+    process = get_process_by_id(session,id)
+    process_data = process_update.model_dump(exclude_unset=True)
+    process.sqlmodel_update(process_data)
+    session.add(process)
+    session.commit()
+    session.refresh(process)
+    return {"ok":True,"message":"update success"}
+
+def delete_process(session:SessionDep,id:int):
+    process = get_process_by_id(session,id)
+    session.delete(process)
+    session.commit()
+    return {"ok":True,"message":"delete success"}

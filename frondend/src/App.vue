@@ -24,7 +24,7 @@ const handleClose = (key: string, keyPath: string[]) => {
 
 <template>
   <el-container class="full-container">
-    <el-header>Just-Test</el-header>
+    <el-header style="display: flex;justify-content: center; align-items: center;"><h2>Just-Test</h2></el-header>
     <el-container>
       <el-aside width="15%"><el-menu
         default-active="/file"
