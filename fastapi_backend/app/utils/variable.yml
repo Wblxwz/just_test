@@ -1,0 +1,7 @@
+tools:
+  jmeter:
+    path: E:\WorkSpace\just_test\fastapi_backend\app\tools\jmeter\apache-jmeter-5.6.3\bin\jmeter.bat
+    home: E:\\WorkSpace\\just_test\\fastapi_backend\\app\\tools\\jmeter\\apache-jmeter-5.6.3
+    file: 后端请求压测.jmx
+    host: localhost
+    port: 8000

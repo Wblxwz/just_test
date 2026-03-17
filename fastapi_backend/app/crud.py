@@ -56,10 +56,7 @@ def insert_process(session:SessionDep,process:Process):
     session.add(process)
     session.commit()
     session.refresh(process)
-    return {
-        "ok":True,
-        "insert_process":process
-    }
+    return process
 
 def update_process(session:SessionDep,id:int,process_update:ProcessUpdate):
     process = get_process_by_id(session,id)

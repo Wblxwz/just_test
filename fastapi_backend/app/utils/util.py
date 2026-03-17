@@ -3,7 +3,8 @@ from fastapi import UploadFile
 from fastapi.responses import StreamingResponse
 import time
 import aiofiles
-from app.models import File
+from app.crud import File
+import yaml
 
 async def save_file(upload_file:UploadFile):
     file_name = f"{int(time.time() * 1000)}_{upload_file.filename}"
@@ -29,3 +30,11 @@ async def get_file(file:File):
         "Content-Disposition": f"attachment; filename={file.name}"
     })
 
+def read_yaml() -> dict:
+    utils_path = Path(__file__).parent
+    yaml_path = utils_path / "variable.yml"
+    with open(yaml_path,encoding="utf-8") as f:
+        data = yaml.safe_load(f)
+    return data
+
+data = read_yaml()

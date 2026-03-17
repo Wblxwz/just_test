@@ -7,7 +7,7 @@
         <el-table-column show-overflow-tooltip prop="name" label="名称" />
         <el-table-column show-overflow-tooltip prop="describe" label="描述" />
         <el-table-column show-overflow-tooltip prop="type" label="类型" />
-        <el-table-column show-overflow-tooltip prop="host" label="测试IP" />
+        <el-table-column show-overflow-tooltip prop="args" label="测试IP" />
         <!-- <el-table-column show-overflow-tooltip prop="command" label="测试命令" /> -->
         <el-table-column show-overflow-tooltip prop="status" label="状态" />
         <!-- <el-table-column show-overflow-tooltip prop="duration" label="预计时长" />
@@ -112,11 +112,18 @@ const createProcess = ()=>{
 }
 const addProcessButton = async ()=>{
   console.log(processForm.value)
+  const args = ref("")
+  switch (processForm.value.type)
+  {
+    case "JMeter":
+      args.value = "host:" + processForm.value.host
+      break;
+  }
   const process_json = {
     "name":processForm.value.name,
     "describe":processForm.value.describe,
     "type":processForm.value.type,
-    "host":processForm.value.host
+    "args":args.value
   }
   const response = await axios.post("http://127.0.0.1:8000/process",process_json)
   if (response.data.ok)
@@ -132,8 +139,9 @@ const addProcessButton = async ()=>{
   tableData.value = response_get.data
 }
 
-const click_view = (row:Process)=>{
+const click_view = async (row:Process)=>{
   console.log(row)
+  
 }
 const click_delete = async (row:Process)=>{
   console.log(row)
