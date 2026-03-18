@@ -16,9 +16,9 @@ def exec_worker(cmd:str,callback:Callable,env:str = "",report_path:Path = "",id:
     with open(out_file,"w") as f:
         process = subprocess.Popen(cmd,shell=True,env=env,stdout=f,stderr=subprocess.STDOUT,stdin=subprocess.DEVNULL)
     process.wait()
-    callback(process.returncode,id,report_path,session)
+    callback(process.returncode,id,session,str(report_path))
 
-def callback_func(returncode:int,id:int,report_path:Path,session:SessionDep):
+def callback_func(returncode:int,id:int,session:SessionDep,report_path:str):
     end_time = datetime.now(timezone.utc)
     process_db = get_process_by_id(session,id)
     start_time = process_db.start_time.replace(tzinfo=timezone.utc)
@@ -80,3 +80,7 @@ def update_process_api(session:SessionDep,id:int,process_update:ProcessUpdate):
 def delete_process_api(session:SessionDep,id:int):
     return delete_process(session,id)
     
+@router.get("/url/{id}")
+async def download_report(session:SessionDep,id:int):
+    process = get_process_by_id(session,id)
+    return await get_file(url=process.report_url)

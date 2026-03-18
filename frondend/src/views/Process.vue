@@ -10,15 +10,15 @@
         <el-table-column show-overflow-tooltip prop="args" label="测试IP" />
         <!-- <el-table-column show-overflow-tooltip prop="command" label="测试命令" /> -->
         <el-table-column show-overflow-tooltip prop="status" label="状态" />
-        <!-- <el-table-column show-overflow-tooltip prop="duration" label="预计时长" />
-        <el-table-column show-overflow-tooltip prop="elapsed_time" label="已执行时长" />
+        <el-table-column show-overflow-tooltip prop="duration" label="总执行时长" />
+        <!-- <el-table-column show-overflow-tooltip prop="elapsed_time" label="已执行时长" />
         <el-table-column show-overflow-tooltip prop="remain_time" label="剩余时长" /> -->
         <el-table-column show-overflow-tooltip prop="start_time" label="开始时间" />
         <el-table-column show-overflow-tooltip prop="end_time" label="结束时间" />
         <!-- <el-table-column show-overflow-tooltip prop="report_url" label="报告地址" /> -->
         <el-table-column label="操作" #default="scope">
           <div style="display: flex;">
-            <el-button @click="click_view(scope.row)" type="primary">查看</el-button>
+            <el-button v-if="scope.row.status === '已完成'" @click="click_view(scope.row)" type="primary">查看</el-button>
             <el-button @click="click_delete(scope.row)" type="danger">删除</el-button>
           </div>
         </el-table-column>
@@ -54,6 +54,15 @@
         <el-button @click="addProcessButton()" type="success" style="margin-right: 1%;">创建</el-button>
       </el-form-item>
     </el-form>
+  </el-dialog>
+  <el-dialog
+    v-model="checkViewFlag"
+    width="500"
+  >
+  <div style="display: flex; align-items: center; gap: 20px;">
+    <a target="_blank" :href="`http://localhost:8000/${view_report_url}/log/index.html`">报告地址</a>
+    <el-button @click="downloadReport" type="success">下载报告</el-button>
+  </div>
   </el-dialog>
 </template>
 
@@ -103,6 +112,7 @@ onMounted(async ()=>{
     tableData.value = response.data
 })
 const addDialog = ref(false)
+const checkViewFlag = ref(false)
 const createProcess = ()=>{
     processForm.value.name = ""
     processForm.value.host = ""
@@ -139,9 +149,13 @@ const addProcessButton = async ()=>{
   tableData.value = response_get.data
 }
 
+const view_report_url = ref("")
+const row_id = ref()
 const click_view = async (row:Process)=>{
   console.log(row)
-  
+  view_report_url.value = row.report_url.slice(row.report_url.indexOf("reports"))
+  row_id.value = row.id
+  checkViewFlag.value = true
 }
 const click_delete = async (row:Process)=>{
   console.log(row)
@@ -156,6 +170,15 @@ const click_delete = async (row:Process)=>{
   }
   const response_get = await axios.get("http://127.0.0.1:8000/process")
   tableData.value = response_get.data
+}
+const downloadReport = ()=>{
+  const downloadLink = "http://127.0.0.1:8000/process/url/" + row_id.value
+  const link = document.createElement("a")
+  link.href = downloadLink
+  // link.download = data.name
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
 }
 
 </script>

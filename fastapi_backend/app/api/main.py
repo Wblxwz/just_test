@@ -1,6 +1,8 @@
 from app.api.routes import file,process
 from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
+from pathlib import Path
 
 from app.models import *
 from app.db import create_db_and_tables
@@ -22,6 +24,8 @@ app.add_middleware(
 
 app.include_router(file.router)
 app.include_router(process.router)
+
+app.mount("/reports",StaticFiles(directory=Path(__file__).parents[1] / "reports",html=True),name="report")
 
 @app.on_event("startup")
 def on_startup():

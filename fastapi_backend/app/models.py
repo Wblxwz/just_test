@@ -26,7 +26,7 @@ class Process(SQLModel,table=True):
     args: str = Field(default="")
     command: str | None = Field(default="")
     report_url: str = Field(default="")
-    start_time: datetime = Field(default=datetime.now(timezone.utc))
+    start_time: datetime = Field(default_factory=lambda:datetime.now(timezone.utc))
     end_time: datetime | None = Field()
     status: str = Field(default="运行中")
     duration:str | None = Field()
